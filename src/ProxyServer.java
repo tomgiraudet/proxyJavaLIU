@@ -13,11 +13,13 @@ public class ProxyServer implements Runnable {
 
     private int portNumber;
     private ProxyClient myClient;
+    private KidProtection protection;
     public boolean shutDown = false;
 
-    public ProxyServer(int _portNumber, ProxyClient _client){
+    public ProxyServer(int _portNumber, ProxyClient _client, KidProtection _kidProtection){
         portNumber = _portNumber;
         myClient = _client;
+        protection = _kidProtection;
     }
 
     public void run() {
@@ -55,12 +57,16 @@ public class ProxyServer implements Runnable {
                         if(str.length() == 0){
                             System.out.println("Request finished");
                             System.out.println("Request stacked");
-                            myClient.writeRequest(requestStacked);
+                            String res = myClient.writeRequest(requestStacked);
 
-                            // Finishing
-                            requestStacked = "";
-                            finish = true;
-                            System.out.println("Request dealded");
+                            // testing
+                            if(protection.analyze(res)){
+                                // content is safe
+                                System.out.println("SAFE");
+                            }else{
+                                // content is not safe
+                                System.out.println("UNSAFE");
+                            }
                         }
                     }
                 }

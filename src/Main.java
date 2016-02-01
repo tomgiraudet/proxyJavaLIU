@@ -10,7 +10,9 @@ public class Main {
         int localPortnumber = 6789;
 
         ProxyClient client = new ProxyClient();
-        ProxyServer server = new ProxyServer(localPortnumber, client);
+        KidProtection protection = new KidProtection();
+        ProxyServer server = new ProxyServer(localPortnumber, client, protection);
+
 
 
         Thread tserveur = new Thread(server);
