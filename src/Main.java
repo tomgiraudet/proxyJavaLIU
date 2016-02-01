@@ -7,10 +7,21 @@ import java.io.*;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        ProxyServer server = new ProxyServer();
+        int localPortnumber = 6789;
+
+        ProxyServer server = new ProxyServer(localPortnumber);
         ProxyClient client = new ProxyClient();
-        server.init();
-        client.init();
-        System.out.println("done");
+
+        Thread tserveur = new Thread(server);
+        Thread tclient = new Thread(client);
+
+        // Launch the server
+        tserveur.start();
+
+        // Launch the client
+        //tclient.start();
+
+
+
     }
 }

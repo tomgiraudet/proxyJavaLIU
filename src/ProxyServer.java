@@ -8,26 +8,73 @@ import java.net.Socket;
 import java.util.Date;
 
 
-public class ProxyServer {
-
-    public void init() throws IOException {
-        final int portNumber = 5678;
-        System.out.println("Creating server socket on port " + portNumber);
-        ServerSocket serverSocket = new ServerSocket(portNumber);
-
-        while (true) {
-            Socket socket = serverSocket.accept();
-            OutputStream os = socket.getOutputStream();
+public class ProxyServer implements Runnable {
 
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String str = br.readLine();
+    private int portNumber;
+    private ProxyClient myClient;
+    public boolean shutDown = false;
 
-            socket.close();
-
-
-            System.out.println(str);
-        }
+    public ProxyServer(int _portNumber){
+        portNumber = _portNumber;
     }
+
+    public void run() {
+        System.out.println("Creating server socket on port " + portNumber);
+
+        try {
+            ServerSocket serverSocket = new ServerSocket(portNumber);
+            Socket socket;
+
+            System.out.println("Socket created");
+
+            while (!shutDown) {
+                System.out.println("Ready to listen");
+                socket = serverSocket.accept();
+
+                System.out.println("Request detected");
+                OutputStream os = socket.getOutputStream();
+
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                String str = "";
+
+
+                while (!shutDown) {
+                    String requestStacked = "";
+                    boolean finish = false;
+
+                    while (!finish) {
+                        //stacking the request
+                        str = br.readLine();
+                        requestStacked = requestStacked + str + '\n';
+                        System.out.println(requestStacked);
+
+
+                        if(str.length() == 0){
+                            System.out.println("Request finished");
+                            System.out.println("Request stacked");
+                            myClient = new ProxyClient();
+                            myClient.writeRequest(requestStacked);
+                            System.out.println("Request sent");
+
+                            // Finishing
+                            requestStacked = "";
+                            finish = true;
+                            System.out.println("Request dealded");
+                        }
+                    }
+                }
+            }
+            //socket.close();
+
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
 
 }
