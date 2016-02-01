@@ -15,12 +15,12 @@ public class ProxyServer implements Runnable {
     private ProxyClient myClient;
     public boolean shutDown = false;
 
-    public ProxyServer(int _portNumber){
+    public ProxyServer(int _portNumber, ProxyClient _client){
         portNumber = _portNumber;
+        myClient = _client;
     }
 
     public void run() {
-        System.out.println("Creating server socket on port " + portNumber);
 
         try {
             ServerSocket serverSocket = new ServerSocket(portNumber);
@@ -55,9 +55,7 @@ public class ProxyServer implements Runnable {
                         if(str.length() == 0){
                             System.out.println("Request finished");
                             System.out.println("Request stacked");
-                            myClient = new ProxyClient();
                             myClient.writeRequest(requestStacked);
-                            System.out.println("Request sent");
 
                             // Finishing
                             requestStacked = "";

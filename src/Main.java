@@ -9,17 +9,20 @@ public class Main {
     public static void main(String[] args) throws IOException {
         int localPortnumber = 6789;
 
-        ProxyServer server = new ProxyServer(localPortnumber);
         ProxyClient client = new ProxyClient();
+        ProxyServer server = new ProxyServer(localPortnumber, client);
+
 
         Thread tserveur = new Thread(server);
         Thread tclient = new Thread(client);
 
+        // Launch the client
+        tclient.start();
+
         // Launch the server
         tserveur.start();
 
-        // Launch the client
-        //tclient.start();
+
 
 
 
