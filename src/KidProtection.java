@@ -3,12 +3,12 @@
  */
 public class KidProtection {
 
-    final static String[] BAD_WORDS = {"Spongebob", "norrköping", "britney spears", "android"};
+    final static String[] BAD_WORDS = {"Spongebob", "norrköping", "britney spears", "android", "apple"};
 
     public boolean analyze(String _content){
         for(int i = 0; i<BAD_WORDS.length; i++){
             if(_content.contains(BAD_WORDS[i])){
-                return false;
+                //return false;
             }
         }
         return true;

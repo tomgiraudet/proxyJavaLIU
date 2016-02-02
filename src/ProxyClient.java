@@ -4,6 +4,7 @@
 
 import java.net.*;
 import java.io.*;
+import java.util.*;
 
 public class ProxyClient implements Runnable{
 
@@ -80,16 +81,20 @@ public class ProxyClient implements Runnable{
             boolean finish = false;
             String res = "";
             String str = "";
+            int fuck = 0;
+            long startingTime = new Date().getTime();
 
             while (!finish) {
-                //stacking the request
+                //stacking the request;
                 str = in.readLine();
                 res = res + str + '\n';
-                System.out.println(res);
+                System.out.println("Working : "+fuck++);
 
-
-                if(str.length() == 0){
-                    return(res);
+                long endTime = new Date().getTime();
+                if(str == null || str.contains("<\\html>") || str == "0" || fuck == 49){
+                    finish = true;
+                    System.out.println(res);
+                    return res;
                 }
             }
         }

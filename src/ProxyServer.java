@@ -63,6 +63,10 @@ public class ProxyServer implements Runnable {
                             if(protection.analyze(res)){
                                 // content is safe
                                 System.out.println("SAFE");
+                                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                                out.write(res);
+                                System.out.println(res);
+                                System.out.println("Send to WB");
                             }else{
                                 // content is not safe
                                 System.out.println("UNSAFE");
