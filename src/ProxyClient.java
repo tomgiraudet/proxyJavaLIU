@@ -13,7 +13,7 @@ public class ProxyClient implements Runnable{
     }
 
 
-    public char[] writeRequest(String _request){
+    public String writeRequest(String _request){
         System.out.println("Asking for sending request");
         char[] myRequest = _request.toCharArray();
         int portNumber = 80;
@@ -75,7 +75,6 @@ public class ProxyClient implements Runnable{
             BufferedReader in = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             out.println(_request);
             out.println("");
-            System.out.println("Request send");
             System.out.println("###################### RESPONSE ######################");
 
             // Looking for the response
@@ -92,7 +91,8 @@ public class ProxyClient implements Runnable{
                 {
                     String message = new String(buffer).substring(0, charsRead);
                     System.out.println(message);
-                    return buffer;
+                    //return buffer.toString();
+                    return "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> Hello world </p>";
 
                 }
 
@@ -101,9 +101,7 @@ public class ProxyClient implements Runnable{
             System.err.println("Caught IOException: " + e.getMessage());
         }
 
-
-        char[] error = {'e', 'r', 'r', 'o', 'r'};
-        return error;
+        return "error";
     }
 
 

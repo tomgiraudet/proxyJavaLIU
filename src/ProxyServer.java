@@ -5,11 +5,9 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Date;
 
 
 public class ProxyServer implements Runnable {
-
 
     private int portNumber;
     private ProxyClient myClient;
@@ -22,10 +20,7 @@ public class ProxyServer implements Runnable {
         protection = _kidProtection;
     }
 
-
-
     public void run() {
-
         try {
             ServerSocket serverSocket = new ServerSocket(portNumber);
             Socket socket;
@@ -38,7 +33,6 @@ public class ProxyServer implements Runnable {
 
                 System.out.println("Request detected");
                 OutputStream os = socket.getOutputStream();
-
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -59,24 +53,15 @@ public class ProxyServer implements Runnable {
                             System.out.println("Request finished");
                             System.out.println(requestStacked);
                             System.out.println("Request send");
-                            char[] res = myClient.writeRequest(requestStacked);
+                            String res = myClient.writeRequest(requestStacked);
 
 
                             System.out.println("###################### Send to browser ######################");
                             System.out.println(res);
-                            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                            int i = 0;
-                            boolean finishCounting = false;
-                            while(!finishCounting){
-                                if(res[i] != '\u0000'){
-                                    i++;
-                                }else{
-                                    finishCounting = true;
-                                }
-                            }
-                            System.out.println("Size of buffer : "+i);
-                            out.write(res,0, i);
+                            PrintWriter out = new PrintWriter(socket.getOutputStream());
+                            out.println(res);
                             out.flush();
+                            out.close();
 
 
                             System.out.println("Send to WB");
@@ -87,8 +72,6 @@ public class ProxyServer implements Runnable {
                     }
                 }
             }
-            //socket.close();
-
         }catch(Exception e) {
             e.printStackTrace();
         }

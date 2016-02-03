@@ -22,9 +22,9 @@ public class Main {
         // Launch the server
         tserveur.start();
 
-
-
-
-
+        /*// Sending stuff to the browser
+        HTMLtoBrowser test = new HTMLtoBrowser();
+        test.sentToBrowser(localPortnumber);
+        System.out.println("Sent");*/
     }
 }
