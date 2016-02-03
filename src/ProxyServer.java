@@ -33,9 +33,8 @@ public class ProxyServer implements Runnable {
             String str = "";
             String res;
 
-            System.out.println("[Server] Creation of Socket : Web Browser -> Proxy (Server part)");
             ServerSocket serverSocket = new ServerSocket(portNumber);
-            System.out.println("[Server] Succeed");
+            System.out.println("[Server] Server Launched");
 
             while (!shutDown) {
                 System.out.println("[Server] Ready to listen");
@@ -49,14 +48,12 @@ public class ProxyServer implements Runnable {
                 str = "";
                 res = "";
                 requestStacked = "";
-
                 boolean finish = false;
 
                 while (!finish) {
-                    //stacking the request
+                    //Stacking the request
                     str = br.readLine();
                     requestStacked = requestStacked + str + '\n';
-
 
                     if(str.length() == 0){
                         System.out.println("[Server] Request read");
@@ -66,25 +63,23 @@ public class ProxyServer implements Runnable {
 
                         System.out.println("[Server] Asking KidProtection for bad words ...");
                         if(!protection.analyze(res)){
+
+                            // Unsafe content
                             res = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> This page is unsafe, sorry !</p>";
                             System.out.println("[Server] Content changed");
-                            // Do not display
                         }
+
                         out = new PrintWriter(socket.getOutputStream());
                         out.println(res);
                         out.flush();
 
-
                         out.close(); // Request is over, let inform the browser that he can display.
-
                         System.out.println("[Server] Transfer : Proxy (Server side) -> Web Browser");
+
+
                         finish = true;
                         System.out.println("[Server] Request finished");
                         System.out.println("################### NEXT REQUEST ###################");
-
-
-
-
                     }
                 }
             }

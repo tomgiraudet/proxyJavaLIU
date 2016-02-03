@@ -3,9 +3,10 @@
  */
 public class KidProtection {
 
-    final static String[] BAD_WORDS = {"Spongebob", "norrköping", "britney spears", "android", "tom", "apple"};
+    final static String[] BAD_WORDS = {"Spongebob", "norrköping", "britney spears"};
 
     public boolean analyze(String _content){
+
         System.out.println("[KidProtection] Request for checking content received");
         System.out.println("[KidProtection] Looking for bad words ...");
         for(int i = 0; i<BAD_WORDS.length; i++){

@@ -14,6 +14,7 @@ public class ProxyClient implements Runnable{
 
 
     public String writeRequest(String _request){
+
         System.out.println("[Client] Request received");
         char[] myRequest = _request.toCharArray();
         int portNumber = 80;
@@ -94,17 +95,10 @@ public class ProxyClient implements Runnable{
             System.out.println("[Client] Waiting for answer ... ");
             while ((charsRead = in.read(buffer)) != -1) {
                 System.out.println("[Client] Answer arrived");
-                System.out.println("[Client] Answer analysing ## TODO ##");
                 String message = new String(buffer).substring(0, charsRead);
-
-                // TODO : Spliting the message to extract header and content
-                String header = "HTTP/1.1 200 OK\n" + "Content-Type: text/html";
-                String content = "<p> Hello world of apple fanboys !  </p>";
-
-
                 System.out.println("[Client] Transfer : Proxy (Client side) -> Proxy (Server side)");
-
-                return header+"\n\n\r"+content;
+                return message;
+                //return header+"\n\n\r"+content;
 
             }
 
