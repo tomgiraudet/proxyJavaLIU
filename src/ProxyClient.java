@@ -13,7 +13,7 @@ public class ProxyClient implements Runnable{
     }
 
 
-    public String writeRequest(String _request){
+    public char[] writeRequest(String _request){
         System.out.println("Asking for sending request");
         char[] myRequest = _request.toCharArray();
         int portNumber = 80;
@@ -92,14 +92,9 @@ public class ProxyClient implements Runnable{
                 {
                     String message = new String(buffer).substring(0, charsRead);
                     System.out.println(message);
-                    return message;
+                    return buffer;
 
                 }
-            if(str == null || str.contains("<\\html>") || str == "0"){
-                finish = true;
-                System.out.println(res);
-                return res;
-            }
 
         }
         catch (IOException e) {
@@ -107,8 +102,8 @@ public class ProxyClient implements Runnable{
         }
 
 
-
-        return "ERROR 404";
+        char[] error = {'e', 'r', 'r', 'o', 'r'};
+        return error;
     }
 
 

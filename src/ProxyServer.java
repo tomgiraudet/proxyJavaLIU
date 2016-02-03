@@ -59,13 +59,23 @@ public class ProxyServer implements Runnable {
                             System.out.println("Request finished");
                             System.out.println(requestStacked);
                             System.out.println("Request send");
-                            String res = myClient.writeRequest(requestStacked);
+                            char[] res = myClient.writeRequest(requestStacked);
 
 
                             System.out.println("###################### Send to browser ######################");
                             System.out.println(res);
                             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                            out.write(res);
+                            int i = 0;
+                            boolean finishCounting = false;
+                            while(!finishCounting){
+                                if(res[i] != '\u0000'){
+                                    i++;
+                                }else{
+                                    finishCounting = true;
+                                }
+                            }
+                            System.out.println("Size of buffer : "+i);
+                            out.write(res,0, i);
                             out.flush();
 
 
@@ -73,23 +83,6 @@ public class ProxyServer implements Runnable {
 
 
 
-
-
-
-
-
-                            /*// testing
-                            if(protection.analyze(res)){
-                                // content is safe
-                                System.out.println("SAFE");
-                                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                                out.write(res);
-                                System.out.println(res);
-                                System.out.println("Send to WB");
-                            }else{
-                                // content is not safe
-                                System.out.println("UNSAFE");
-                            }*/
                         }
                     }
                 }
