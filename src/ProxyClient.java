@@ -76,27 +76,31 @@ public class ProxyClient implements Runnable{
             out.println(_request);
             out.println("");
             System.out.println("Request send");
+            System.out.println("###################### RESPONSE ######################");
 
             // Looking for the response
             boolean finish = false;
             String res = "";
             String str = "";
-            int fuck = 0;
-            long startingTime = new Date().getTime();
+            String finalMessage = "";
 
-            while (!finish) {
-                //stacking the request;
-                str = in.readLine();
-                res = res + str + '\n';
-                System.out.println("Working : "+fuck++);
 
-                long endTime = new Date().getTime();
-                if(str == null || str.contains("<\\html>") || str == "0" || fuck == 49){
-                    finish = true;
-                    System.out.println(res);
-                    return res;
+
+                char[] buffer = new char[2048];
+                int charsRead = 0;
+                while ((charsRead = in.read(buffer)) != -1)
+                {
+                    String message = new String(buffer).substring(0, charsRead);
+                    System.out.println(message);
+                    return message;
+
                 }
+            if(str == null || str.contains("<\\html>") || str == "0"){
+                finish = true;
+                System.out.println(res);
+                return res;
             }
+
         }
         catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());

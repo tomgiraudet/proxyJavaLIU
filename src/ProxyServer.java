@@ -22,6 +22,8 @@ public class ProxyServer implements Runnable {
         protection = _kidProtection;
     }
 
+
+
     public void run() {
 
         try {
@@ -51,15 +53,32 @@ public class ProxyServer implements Runnable {
                         //stacking the request
                         str = br.readLine();
                         requestStacked = requestStacked + str + '\n';
-                        System.out.println(requestStacked);
 
 
                         if(str.length() == 0){
                             System.out.println("Request finished");
-                            System.out.println("Request stacked");
+                            System.out.println(requestStacked);
+                            System.out.println("Request send");
                             String res = myClient.writeRequest(requestStacked);
 
-                            // testing
+
+                            System.out.println("###################### Send to browser ######################");
+                            System.out.println(res);
+                            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                            out.write(res);
+                            out.flush();
+
+
+                            System.out.println("Send to WB");
+
+
+
+
+
+
+
+
+                            /*// testing
                             if(protection.analyze(res)){
                                 // content is safe
                                 System.out.println("SAFE");
@@ -70,7 +89,7 @@ public class ProxyServer implements Runnable {
                             }else{
                                 // content is not safe
                                 System.out.println("UNSAFE");
-                            }
+                            }*/
                         }
                     }
                 }

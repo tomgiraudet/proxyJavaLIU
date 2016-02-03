@@ -13,8 +13,6 @@ public class Main {
         KidProtection protection = new KidProtection();
         ProxyServer server = new ProxyServer(localPortnumber, client, protection);
 
-
-
         Thread tserveur = new Thread(server);
         Thread tclient = new Thread(client);
 
