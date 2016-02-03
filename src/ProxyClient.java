@@ -92,7 +92,7 @@ public class ProxyClient implements Runnable{
                     String message = new String(buffer).substring(0, charsRead);
                     System.out.println(message);
                     //return buffer.toString();
-                    return "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> Hello world </p>";
+                    return "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> Hello world of apple fanboys !  </p>";
 
                 }
 

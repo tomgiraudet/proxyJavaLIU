@@ -55,13 +55,21 @@ public class ProxyServer implements Runnable {
                             System.out.println("Request send");
                             String res = myClient.writeRequest(requestStacked);
 
-
-                            System.out.println("###################### Send to browser ######################");
+                            System.out.println("###################### Looking for bad words ######################");
+                            if(!protection.analyze(res)){
+                                res = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> This page is unsafe, sorry !</p>";
+                                // Do not display
+                                System.out.println("###################### Unsafe stuff ######################");
+                            }
+                            System.out.println("###################### Safe stuff ######################");
                             System.out.println(res);
                             PrintWriter out = new PrintWriter(socket.getOutputStream());
                             out.println(res);
                             out.flush();
                             out.close();
+
+
+
 
 
                             System.out.println("Send to WB");
