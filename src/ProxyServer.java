@@ -61,14 +61,6 @@ public class ProxyServer implements Runnable {
                         res = myClient.writeRequest(requestStacked);
                         System.out.println("[Server] Response received");
 
-                        System.out.println("[Server] Asking KidProtection for bad words ...");
-                        if(!protection.analyze(res)){
-
-                            // Unsafe content
-                            res = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> This page is unsafe, sorry !</p>";
-                            System.out.println("[Server] Content changed");
-                        }
-
                         out = new PrintWriter(socket.getOutputStream());
                         out.println(res);
                         out.flush();

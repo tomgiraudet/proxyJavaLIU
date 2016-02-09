@@ -15,6 +15,8 @@ public class ProxyClient implements Runnable{
 
     public String writeRequest(String _request){
 
+        KidProtection check = new KidProtection();
+
         System.out.println("[Client] Request received");
         char[] myRequest = _request.toCharArray();
         int portNumber = 80;
@@ -53,6 +55,10 @@ public class ProxyClient implements Runnable{
         System.out.println("[Client] Parsing request done");
         System.out.println("[Client] "+request);
         System.out.println("[Client] "+host);
+        System.out.println("[Client] Asking the Kid protection for checking host and request ...");
+        if(check.analyze(request) || check.analyze(host)){
+            return "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> This page is unsafe, sorry !</p>";
+        }
 
 
         //String myURL = parsing myRequest
@@ -92,15 +98,20 @@ public class ProxyClient implements Runnable{
             BufferedReader in = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             char[] buffer = new char[2048];
             int charsRead = 0;
+            String message = "";
             System.out.println("[Client] Waiting for answer ... ");
-            while ((charsRead = in.read(buffer)) != -1) {
+            while ((charsRead = in.read(buffer)) > 0) {
                 System.out.println("[Client] Answer arrived");
-                String message = new String(buffer).substring(0, charsRead);
+                message = new String(buffer).substring(0, charsRead);
                 System.out.println("[Client] Transfer : Proxy (Client side) -> Proxy (Server side)");
-                return message;
-                //return header+"\n\n\r"+content;
-
+                if(check.analyze(message)){
+                    return "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> This page is unsafe, sorry !</p>";
+                }else{
+                    return message;
+                }
             }
+
+
 
         }
         catch (IOException e) {
