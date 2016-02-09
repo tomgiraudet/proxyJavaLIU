@@ -98,17 +98,21 @@ public class ProxyClient implements Runnable{
             BufferedReader in = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             char[] buffer = new char[2048];
             int charsRead = 0;
-            String message = "";
+            String messageStacked = "";
+            String currentStack = "";
             System.out.println("[Client] Waiting for answer ... ");
+            System.out.println("[Client] Answer arrived");
             while ((charsRead = in.read(buffer)) > 0) {
-                System.out.println("[Client] Answer arrived");
-                message = new String(buffer).substring(0, charsRead);
-                System.out.println("[Client] Transfer : Proxy (Client side) -> Proxy (Server side)");
-                if(check.analyze(message)){
-                    return "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> This page is unsafe, sorry !</p>";
-                }else{
-                    return message;
-                }
+                currentStack = new String(buffer).substring(0, charsRead);
+                messageStacked = messageStacked + currentStack;
+                System.out.println("Currentstack : "+currentStack);
+                currentStack = "";
+            }
+            System.out.println("[Client] Transfer : Proxy (Client side) -> Proxy (Server side)");
+            if(check.analyze(messageStacked)){
+                return "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> This page is unsafe, sorry !</p>";
+            }else{
+                return messageStacked;
             }
 
 
