@@ -3,7 +3,7 @@
  */
 public class KidProtection {
 
-    final static String[] BAD_WORDS = {"SpongeBob", "norrköping", "Norrköping", "britney spears"};
+    final static String[] BAD_WORDS = {"SpongeBob", "spongebob", "Spongebob", "norrköping", "norrkoping", "Norrköping", "britney spears", "Britney Spears", "Britney spears"};
 
     public boolean analyze(String _content){
         System.out.println("[KidProtection] Request for checking content received");

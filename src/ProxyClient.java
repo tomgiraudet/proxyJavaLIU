@@ -4,20 +4,20 @@
 
 import java.net.*;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 
-public class ProxyClient implements Runnable{
+public class ProxyClient{
 
-    public void run() {
-        // Make the shit always linstening
+    private int MAXSIZEBUFFER;
+
+    public void setSizeBuffer(int _size){
+        MAXSIZEBUFFER = _size;
     }
 
-
-    public String writeRequest(String _request){
-
+    public ByteBuffer writeRequest(String _request) {
         KidProtection check = new KidProtection();
-
-        System.out.println("[Client] Request received");
+        ByteBuffer resBuff = ByteBuffer.allocate(MAXSIZEBUFFER);
         char[] myRequest = _request.toCharArray();
         int portNumber = 80;
         String ip = "";
@@ -29,54 +29,43 @@ public class ProxyClient implements Runnable{
         String secondLine = "";
         String restOfRequest = "";
 
-        while(!firstLineExtract){
-            if(myRequest[i] == '\n') {
+        while (!firstLineExtract) {
+            if (myRequest[i] == '\n') {
                 firstLineExtract = true;
                 firstLine = _request.substring(0, i);
-                restOfRequest = _request.substring(i+1);
+                restOfRequest = _request.substring(i + 1);
             }
             i++;
         }
 
         char[] myRestOfRequest = restOfRequest.toCharArray();
         i = 0;
-        while(!secondLineExtract){
-            if(myRestOfRequest[i] == '\n') {
+        while (!secondLineExtract) {
+            if (myRestOfRequest[i] == '\n') {
                 secondLineExtract = true;
                 secondLine = restOfRequest.substring(0, i);
-                restOfRequest = restOfRequest.substring(i+1);
+                restOfRequest = restOfRequest.substring(i + 1);
             }
             i++;
         }
 
-
         String request = firstLine;
         String host = secondLine;
-        System.out.println("[Client] Parsing request done");
-        System.out.println("[Client] "+request);
-        System.out.println("[Client] "+host);
-        System.out.println("[Client] Asking the Kid protection for checking host and request ...");
-        if(check.analyze(request) || check.analyze(host)){
-            return "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> This page is unsafe, sorry !</p>";
-        }
 
 
         //String myURL = parsing myRequest
         String url = host.substring(6);
-        System.out.println("[Client] url : "+url);
-        try{
-            InetAddress address = InetAddress.getByName(new URL("http://"+url+"/").getHost());
+        System.out.println("[Client] url : " + url);
+        try {
+            InetAddress address = InetAddress.getByName(new URL("http://" + url + "/").getHost());
             ip = address.getHostAddress();
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
         }
-        System.out.println("[Client] ip: "+ip);
-
+        System.out.println("[Client] ip: " + ip);
 
 
         // Sending URL
-
-
         try {
             System.out.println("[Client] Transfer : Proxy (Client side) -> Web server");
             Socket mySocket = new Socket(ip, portNumber);
@@ -89,43 +78,85 @@ public class ProxyClient implements Runnable{
 
 
             // Looking for the response
-            boolean finish = false;
-            String res = "";
-            String str = "";
-            String finalMessage = "";
+            BufferedReader inS = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
 
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
-            char[] buffer = new char[2048];
             int charsRead = 0;
             String messageStacked = "";
-            String currentStack = "";
+            boolean isEncoded = false;
+
+
             System.out.println("[Client] Waiting for answer ... ");
             System.out.println("[Client] Answer arrived");
-            while ((charsRead = in.read(buffer)) > 0) {
-                currentStack = new String(buffer).substring(0, charsRead);
-                messageStacked = messageStacked + currentStack;
-                System.out.println("Currentstack : "+currentStack);
-                currentStack = "";
+            while (inS.ready() || resBuff.position() < 40) {
+                resBuff.put((byte) inS.read());
             }
+            messageStacked = resBuff.toString();
+            System.out.println(messageStacked);
             System.out.println("[Client] Transfer : Proxy (Client side) -> Proxy (Server side)");
-            if(check.analyze(messageStacked)){
-                return "HTTP/1.1 200 OK\nContent-Type: text/html\n\n\r<p> This page is unsafe, sorry !</p>";
-            }else{
-                return messageStacked;
-            }
 
 
+            // Flips this buffer.  The limit is set to the current position and then
+            // the position is set to zero.  If the mark is defined then it is discarded
+            resBuff.flip();
+            return resBuff;
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
         }
 
-        return "error";
+
+        resBuff.flip();
+        return resBuff;
     }
 
 
+    public boolean checkURL(String _request){
+
+        System.out.println("[Client] Request received");
+        System.out.println("[Client] Checking URL and HOST");
+
+        KidProtection check = new KidProtection();
+        char[] myRequest = _request.toCharArray();
+
+        boolean firstLineExtract = false;
+        boolean secondLineExtract = false;
+        int i = 0;
+        String firstLine = "";
+        String secondLine = "";
+        String restOfRequest = "";
+
+        while (!firstLineExtract) {
+            if (myRequest[i] == '\n') {
+                firstLineExtract = true;
+                firstLine = _request.substring(0, i);
+                restOfRequest = _request.substring(i + 1);
+            }
+            i++;
+        }
+
+        char[] myRestOfRequest = restOfRequest.toCharArray();
+        i = 0;
+        while (!secondLineExtract) {
+            if (myRestOfRequest[i] == '\n') {
+                secondLineExtract = true;
+                secondLine = restOfRequest.substring(0, i);
+                restOfRequest = restOfRequest.substring(i + 1);
+            }
+            i++;
+        }
+
+
+        String request = firstLine;
+        String host = secondLine;
+        System.out.println("[Client] Parsing request done");
+        System.out.println("[Client] " + request);
+        System.out.println("[Client] " + host);
+        System.out.println("[Client] Asking the Kid protection for checking host and request ...");
+        if (check.analyze(request) || check.analyze(host)) {
+            return true;
+        }
+         return false;
+    }
 
 
 }

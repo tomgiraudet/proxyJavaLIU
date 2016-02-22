@@ -5,19 +5,28 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 
 
 public class ProxyServer implements Runnable {
 
     private int portNumber;
+    private int MAXSIZEBUFFER;
     private ProxyClient myClient;
     private KidProtection protection;
     public boolean shutDown = false;
 
-    public ProxyServer(int _portNumber, ProxyClient _client, KidProtection _kidProtection){
+    public ProxyServer(int _portNumber, ProxyClient _client, KidProtection _kidProtection, int _maxsizebuffer){
         portNumber = _portNumber;
         myClient = _client;
         protection = _kidProtection;
+
+        MAXSIZEBUFFER = _maxsizebuffer;
+        myClient.setSizeBuffer(MAXSIZEBUFFER);
     }
 
     public void run() {
@@ -58,14 +67,49 @@ public class ProxyServer implements Runnable {
                     if(str.length() == 0){
                         System.out.println("[Server] Request read");
                         System.out.println("[Server] Transfer : Proxy (Server side) -> Proxy (Client side)");
-                        res = myClient.writeRequest(requestStacked);
-                        System.out.println("[Server] Response received");
 
-                        out = new PrintWriter(socket.getOutputStream());
-                        out.println(res);
-                        out.flush();
+                        ByteBuffer resBuff = ByteBuffer.allocate(MAXSIZEBUFFER);
 
-                        out.close(); // Request is over, let inform the browser that he can display.
+                        // checking of the URL
+                        if (myClient.checkURL(requestStacked)) {
+                            // URL UNSAFE
+                            String resUnsafe = "HTTP/1.1 302 Found\\r\\nLocation: http://www.ida.liu.se/~TDTS04/labs/2011/ass2/error1.html\\r\\nConnection: Close\\r\\n\\r\\n";
+                            out = new PrintWriter(socket.getOutputStream());
+                            out.write(resUnsafe);
+                            out.flush();
+                            out.close(); // Request is over, let inform the browser that he can display.
+
+                        }else{
+                            // URL SAFE, asking for the response
+                            resBuff = myClient.writeRequest(requestStacked);
+                            resBuff.flip();
+
+                            // Checking content
+                            String resBuffString;
+                            resBuffString = resBuff.toString();
+
+                            if(protection.analyze(resBuffString)){
+                                // UNSAFE CONTENT
+                                String resUnsafe = "HTTP/1.1 302 Found\\r\\nLocation: http://www.ida.liu.se/~TDTS04/labs/2011/ass2/error2.html\\r\\nConnection: Close\\r\\n\\r\\n";
+                                out = new PrintWriter(socket.getOutputStream());
+                                out.write(resUnsafe);
+                                out.flush();
+                                out.close(); // Request is over, let inform the browser that he can display.
+                            }else{
+                                // SAFE CONTENT
+                                byte[] arrayRes = resBuff.array();
+                                DataOutputStream dos = new DataOutputStream(os);
+                                dos.write(arrayRes);
+
+                                System.out.println("[Server] Transfer : Proxy (Server side) -> Web Browser");
+                            }
+
+
+                        }
+
+
+
+                        System.out.println("[Server] Response received and processed");
                         System.out.println("[Server] Transfer : Proxy (Server side) -> Web Browser");
 
 
